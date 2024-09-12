@@ -175,8 +175,11 @@ class Model(nn.Module):
         super(Model, self).__init__()
         self.batch_size = batch_size
         self.num_segments = 32
-        self.k_abn = self.num_segments // 10
-        self.k_nor = self.num_segments // 10
+        # self.k_abn = self.num_segments // 10
+        self.k_abn = 1
+        # self.k_nor = self.num_segments // 10
+        self.k_nor = 1
+
 
         self.Aggregate = Aggregate(len_feature=2048)
         self.fc1 = nn.Linear(n_features, 512)
@@ -233,7 +236,10 @@ class Model(nn.Module):
 
         #######  process abnormal videos -> select top3 feature magnitude  #######
         afea_magnitudes_drop = afea_magnitudes * select_idx
+        # idx_abn = torch.topk(afea_magnitudes_drop, k_abn, dim=1)[1]
+        # print(afea_magnitudes.shape)
         idx_abn = torch.topk(afea_magnitudes_drop, k_abn, dim=1)[1]
+
         idx_abn_feat = idx_abn.unsqueeze(2).expand([-1, -1, abnormal_features.shape[2]])
 
         abnormal_features = abnormal_features.view(n_size, ncrops, t, f)
