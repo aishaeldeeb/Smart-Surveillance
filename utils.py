@@ -1,6 +1,6 @@
-import visdom
 import numpy as np
 import torch
+import traceback
 
 class Visualizer(object):
     def __init__(self, env='default', **kwargs):
@@ -32,7 +32,7 @@ class Visualizer(object):
 def process_feat(feat, length):
     new_feat = np.zeros((length, feat.shape[1])).astype(np.float32)
     
-    r = np.linspace(0, len(feat), length+1, dtype=np.int)
+    r = np.linspace(0, len(feat), length+1, dtype=np.int64)
     for i in range(length):
         if r[i]!=r[i+1]:
             new_feat[i,:] = np.mean(feat[r[i]:r[i+1],:], 0)
@@ -91,6 +91,14 @@ def modelsize(model, input, type_size=4):
 
 
 def save_best_record(test_info, file_path):
+    # fo = open(file_path, "w")
+    # fo.write("epoch: {}\n".format(test_info["epoch"][-1]))
+    # fo.write(str(test_info["test_AUC"][-1]))
+    # fo.close()
+    if "epoch" not in test_info:
+        print(f"KeyError: 'epoch' not found in test_info. test_info keys: {test_info.keys()}")
+        traceback.print_stack()
+        return
     fo = open(file_path, "w")
     fo.write("epoch: {}\n".format(test_info["epoch"][-1]))
     fo.write(str(test_info["test_AUC"][-1]))
