@@ -1,124 +1,118 @@
-import matplotlib.pyplot as plt
-import torch
-from sklearn.metrics import auc, roc_curve, precision_recall_curve
+New! Keyboard shortcuts … Drive keyboard shortcuts have been updated to give you first-letters navigation
 import numpy as np
-import matplotlib.pyplot as plt
-import datetime
-import os
+import torch
+import torch.nn.functional as F
+torch.set_default_tensor_type('torch.FloatTensor')
+from torch.nn import L1Loss
+from torch.nn import MSELoss
+import torchvision.transforms as transforms
 
 
-def test(dataloader, model, mode, args, device):
-
-    with torch.no_grad():
-        model.eval()
-        pred = torch.zeros(0, device=device)
-
-        pred_vid = torch.zeros(0, device=device) 
-        gt_vid = np.empty(shape=(0, 0))
-
-        # dataloader_iter = iter(dataloader)
-        # batch_input, batch_label = next(dataloader_iter)
-        # print(f"Input shape: {batch_input.shape}")
-        # print(f"Label shape: {batch_label.shape}")
-        # print(f"Input data type: {batch_input.dtype}")
-        # print(f"Label data type: {batch_label.dtype}")
-
-    
-
-        # for i, input, label in enumerate(dataloader):
-        count = 0
-        for i, (input, label) in enumerate(dataloader):
-          
-           
-            # print(f"Input: {input.shape}")
-            # print(f"Label: {label.shape}")
-            
-            
-            input = input.to(device)
-          
-            input = input.permute(0, 2, 1, 3)
-       
-            score_abnormal, score_normal, feat_select_abn, feat_select_normal, feat_abn_bottom, feat_select_normal_bottom, logits, \
-            scores_nor_bottom, scores_nor_abn_bag, feat_magnitudes = model(inputs=input)
-            logits = torch.squeeze(logits, 1)
-            logits = torch.mean(logits, 0)
-            sig = logits
-            # print(f"Logits: {sig}")
-            # sig = torch.sigmoid(logits)
+def sparsity(arr, batch_size, lamda2):
+    loss = torch.mean(torch.norm(arr, dim=0))
+    return lamda2*loss
 
 
-            #frame level prediction
-            pred = torch.cat((pred, sig))
+def smooth(arr, lamda1):
+    arr2 = torch.zeros_like(arr)
+    arr2[:-1] = arr[1:]
+    arr2[-1] = arr[-1]
 
-            #video level preditction
-            # print(sig)
-            
-            if (torch.sum(sig > 0.5) / sig.numel()) >= 0.1: # Check if more than 10% of values in sig are 1
-                pred_vid = torch.cat((pred_vid,torch.tensor([1.0], device=device)))
-            else:
-                pred_vid = torch.cat((pred_vid, torch.tensor([0.0], device=device)))
+    loss = torch.sum((arr2-arr)**2)
 
-            #append true label
-            # gt_vid = np.append(gt_vid, label)
-            gt_vid = np.append(gt_vid, label.cpu().numpy())
-            count = count + 1
-            print(f"video: {count}")
-
-            # print(f"Video prediction size: {len(pred_vid)}")
-            # print(f"Video label size: {len(gt_vid)}")
+    return lamda1*loss
 
 
+def l1_penalty(var):
+    return torch.mean(torch.norm(var, dim=0))
 
 
-            # #TODO: change this to dowload video based ground truth instead of just one big file for all
-            # if mode == "val":
-            #     gt = np.load(args.val_gt)
-            
-            # elif mode == "test":
-            #     gt = np.load(args.test_gt)
+class SigmoidMAELoss(torch.nn.Module):
+    def __init__(self):
+        super(SigmoidMAELoss, self).__init__()
+        from torch.nn import Sigmoid
+        self.__sigmoid__ = Sigmoid()
+        self.__l1_loss__ = MSELoss()
 
-            
+    def forward(self, pred, target):
+        return self.__l1_loss__(pred, target)
 
 
-        # download concatenated frame-based ground truth
-        if mode == "val":
-            gt = np.load(args.val_gt)
-            
-        elif mode == "test":
-            gt = np.load(args.test_gt)
+class SigmoidCrossEntropyLoss(torch.nn.Module):
+    # Implementation Reference: http://vast.uccs.edu/~adhamija/blog/Caffe%20Custom%20Layer.html
+    def __init__(self):
+        super(SigmoidCrossEntropyLoss, self).__init__()
+
+    def forward(self, x, target):
+        tmp = 1 + torch.exp(- torch.abs(x))
+        return torch.abs(torch.mean(- x * target + torch.clamp(x, min=0) + torch.log(tmp)))
+
+
+class RTFM_loss(torch.nn.Module):
+    def __init__(self, alpha, margin):
+        super(RTFM_loss, self).__init__()
+        self.alpha = alpha
+        self.margin = margin
+        self.sigmoid = torch.nn.Sigmoid()
+        self.mae_criterion = SigmoidMAELoss()
+        self.criterion = torch.nn.BCELoss()
+
+    def forward(self, score_normal, score_abnormal, nlabel, alabel, feat_n, feat_a):
+        label = torch.cat((nlabel, alabel), 0)
+        score_abnormal = score_abnormal
+        score_normal = score_normal
+
+        score = torch.cat((score_normal, score_abnormal), 0)
+        score = score.squeeze()
+
+        label = label.cuda()
+
+        loss_cls = self.criterion(score, label)  # BCE loss in the score space
+
+        loss_abn = torch.abs(self.margin - torch.norm(torch.mean(feat_a, dim=1), p=2, dim=1))
+
+        loss_nor = torch.norm(torch.mean(feat_n, dim=1), p=2, dim=1)
+
+        loss_rtfm = torch.mean((loss_abn + loss_nor) ** 2)
+
+        loss_total = loss_cls + self.alpha * loss_rtfm
+
+        return loss_total
+
+
+def train(nloader, aloader, model, batch_size, optimizer, device):
+
+ 
+
+    with torch.set_grad_enabled(True):
+        model.train()
+
+        ninput, nlabel = next(nloader)
+        ainput, alabel = next(aloader)
 
         
-        pred = list(pred.cpu().detach().numpy())
-        pred = np.repeat(np.array(pred), 16)
+        input = torch.cat((ninput, ainput), 0).to(device)
+        
 
-        fpr, tpr, threshold = roc_curve(list(gt), pred)
-        # np.save('fpr.npy', fpr)
-        # np.save('tpr.npy', tpr)
-        rec_auc = auc(fpr, tpr)
-        print('auc : ' + str(rec_auc))
+        score_abnormal, score_normal, feat_select_abn, feat_select_normal, feat_abn_bottom, \
+        feat_normal_bottom, scores, scores_nor_bottom, scores_nor_abn_bag, _ = model(input)  # b*32  x 2048
 
+        scores = scores.view(batch_size * 32 * 2, -1)
 
-        precision, recall, th = precision_recall_curve(list(gt), pred)
+        scores = scores.squeeze()
+        abn_scores = scores[batch_size * 32:]
 
-        pr_auc = auc(recall, precision)
-        # np.save('precision.npy', precision)
-        # np.save('recall.npy', recall)
+        nlabel = nlabel[0:batch_size]
+        alabel = alabel[0:batch_size]
 
-        pred_vid = list(pred_vid.cpu().detach().numpy())
-        # pred_vid = np.repeat(np.array(pred_vid), 16)
+        loss_criterion = RTFM_loss(0.0001, 100)
+        loss_sparse = sparsity(abn_scores, batch_size, 8e-3)
+        loss_smooth = smooth(abn_scores, 8e-4)
+        cost = loss_criterion(score_normal, score_abnormal, nlabel, alabel, feat_select_normal, feat_select_abn) + loss_smooth + loss_sparse
 
-        # print(f"Video prediction size: {len(pred_vid)}")
-        # print(f"Video label size: {len(gt_vid)}")
-        fpr_vid,tpr_vid, threshold_vid = roc_curve(gt_vid, pred_vid)
-        rec_auc_vid = auc(fpr_vid, tpr_vid)
-        print('video level auc : ' + str(rec_auc_vid))
-
-        precision_vid, recall_vid, th_vid = precision_recall_curve(gt_vid, pred_vid)
-
-        now = datetime.datetime.now()
-
-        output_dir = './output/' + now.strftime('%Y-%m-%d')
-        os.makedirs(output_dir, exist_ok=True)
-
-        return rec_auc, fpr, tpr, precision, recall,\
-        rec_auc_vid, fpr_vid, tpr_vid, precision_vid, recall_vid
+        # viz.plot_lines('loss', cost.item())
+        # viz.plot_lines('smooth loss', loss_smooth.item())
+        # viz.plot_lines('sparsity loss', loss_sparse.item())
+        optimizer.zero_grad()
+        cost.backward()
+        optimizer.step()
