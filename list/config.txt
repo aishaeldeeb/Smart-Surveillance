@@ -1,0 +1,6 @@
+Number of anomaly files: 32
+Number of non-anomaly files: 32
+Number of anomaly files for training: 25
+Number of non-anomaly files for training: 25
+Number of anomaly files for testing: 7
+Number of non-anomaly files for testing: 7
