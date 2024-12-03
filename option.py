@@ -8,7 +8,6 @@ parser.add_argument('--train-list', default='list/train.list', help='train rgb f
 parser.add_argument('--val-list', default='list/val.list', help='validation rgb features list')
 parser.add_argument('--test-list', default='list/test.list', help='test rgb features list')
 
-# parser.add_argument('--gt', default='list/gt.npy', help='file of ground truth')
 parser.add_argument('--val_gt', default='list/val_gt.npy', help='file of ground truth')
 parser.add_argument('--test_gt', default='list/test_gt.npy', help='file of ground truth')
 parser.add_argument('--gpus', default=1, type=int, choices=[0], help='gpus')

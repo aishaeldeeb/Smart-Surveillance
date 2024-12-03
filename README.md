@@ -178,7 +178,7 @@ This repository makes several modifications to the original [RTFM repository](ht
    - Calculated video-level AUC and precision-recall curves, in addition to frame-level metrics.
 
 4. **Improved Output Organization**:
-   - Removed visualization (`viz`) and saved results in structured directories (`./output/`), with timestamps for organization.
+   - Removed visualization (`viz`) and saved results in structured directories (`./output/`), with timestamps.
 
 
 ### Acknowledgments

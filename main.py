@@ -6,7 +6,6 @@ from utils import save_best_record
 from model import Model
 from dataset import Dataset
 from train import train
-# from test_10crop import test
 from test import test
 import option
 from tqdm import tqdm
@@ -17,33 +16,18 @@ import datetime
 
 
 if __name__ == '__main__':
-    
-    
     args = option.parser.parse_args()
     config = Config(args)
    
-
-
     train_nloader = DataLoader(Dataset(args, mode="train", is_normal=True),
                                batch_size=args.batch_size, shuffle=True,
                                num_workers=0, pin_memory=False, drop_last=True)
     
-
     train_aloader = DataLoader(Dataset(args, mode="train", is_normal=False),
                                batch_size=args.batch_size, shuffle=True,
                                num_workers=0, pin_memory=False, drop_last=True)
     
-    # val_loader = DataLoader(Dataset(args, mode="val", is_normal=False),
-    #                            batch_size=1, shuffle=True,
-    #                            num_workers=0, pin_memory=False, drop_last=True)
-    
     val_dataset = Dataset(args, mode="val", is_normal=False)
-    # print("********************")
-    # print("validation dataset")
-    # for i in range(len(val_dataset)):
-    #     input, label = val_dataset[i]
-    #     print(input.shape)
-
 
     val_loader = DataLoader(val_dataset, 
                         batch_size=1, 
@@ -51,31 +35,7 @@ if __name__ == '__main__':
                         num_workers=0, 
                         pin_memory=False, 
                         drop_last=True)
-    # val_loader = DataLoader(val_dataset, 
-    #                         batch_size=args.batch_size, 
-    #                         shuffle=True, 
-    #                         num_workers=0, 
-    #                         pin_memory=False, 
-    #                         drop_last=True, 
-    #                         collate_fn=val_dataset.collate_fn)
-    
-    # for batch_idx, (input, label) in enumerate(val_loader):
-    #     print(f"Batch {batch_idx + 1}:")
-    #     print(f"Input: {input}")
-    #     print(f"Label: {label}")
-
-    # test_loader = DataLoader(Dataset(args, mode="test", is_normal=False),
-    #                            batch_size=args.batch_size, shuffle=True,
-    #                            num_workers=0, pin_memory=False, drop_last=True)
-    
-    # test_loader = DataLoader(Dataset(args, mode="test", is_normal=False), 
-    #                      batch_size=args.batch_size, 
-    #                      shuffle=True, 
-    #                      num_workers=0, 
-    #                      pin_memory=False, 
-    #                      drop_last=True, 
-    #                      collate_fn=Dataset.collate_fn)
-    
+   
     test_dataset = Dataset(args, mode="test", is_normal=False)
     test_loader = DataLoader(test_dataset, 
                         batch_size=1, 
@@ -83,44 +43,14 @@ if __name__ == '__main__':
                         num_workers=0, 
                         pin_memory=False, 
                         drop_last=True)
-    # test_loader = DataLoader(test_dataset, 
-    #                         batch_size=args.batch_size, 
-    #                         shuffle=True, 
-    #                         num_workers=0, 
-    #                         pin_memory=False, 
-    #                         drop_last=True, 
-    #                         collate_fn=test_dataset.collate_fn)
-
-    # dataset = Dataset(args, mode="test", is_normal=True)
-
-    # for i in range(len(dataset)):
-    #     input_tensor, label_tensor = dataset[i]
-    #     print('Type of input_tensor:', type(input_tensor))
-    #     print('Type of label_tensor:', type(label_tensor))
-    #     if torch.is_tensor(input_tensor):
-    #         print('Input tensor size:', input_tensor.size())
-    #     else:
-    #         print('input_tensor is not a tensor')
-    #     if torch.is_tensor(label_tensor):
-    #         print('Label tensor size:', label_tensor.size())
-    #     else:
-    #         print('label_tensor is not a tensor')
-
-
-
+ 
     print(f"Normal training dataloader length: {len(train_nloader)}")
     print(f"Abnormal training dataloader length: {len(train_aloader)}")
-
     print(f"Validation dataloader length: {len(val_loader)}")
-
     print(f"Testing dataloader length: {len(test_loader)}")
 
 
-    
-
-
     model = Model(args.feature_size, args.batch_size)
-
 
     for name, value in model.named_parameters():
         print(name)
@@ -183,18 +113,13 @@ if __name__ == '__main__':
 
 
         if step % 5 == 0 and step > 200:
-        # if step % 5 == 0:
             print("*****************************")
             print("start validation")
             print("*****************************")
 
-            
             auc_val, fpr, tpr, precision, recall,\
             auc_val_vid, fpr_vid, tpr_vid, precision_vid, recall_vid = test(val_loader, model, "val", args, device)
             
-            
-            # auc_val, fpr, tpr, precision, recall = test(val_loader, model, args, device)
-
             val_info["epoch"].append(step)
             val_info["test_AUC"].append(auc_val)
 
@@ -211,9 +136,6 @@ if __name__ == '__main__':
 
                 print(f"Validation dictionary: {val_info}")
 
-
-                # save_best_record(val_info, os.path.join(output_path, '{}-step-auc_val.txt'.format(step)))
-
             if val_info_vid["test_AUC"][-1] > best_auc_val:
                 best_auc_val_vid = val_info_vid["test_AUC"][-1]
                 best_fpr_vid = fpr_vid
@@ -228,7 +150,6 @@ if __name__ == '__main__':
     now = datetime.datetime.now()
     output_dir = './output/' + datetime.datetime.now().strftime('%Y-%m-%d')
     os.makedirs(output_dir, exist_ok=True)
-
 
     # plot best val ROC curve
     plt.figure()
@@ -249,8 +170,6 @@ if __name__ == '__main__':
     plt.savefig(output_dir + '/' + roc_fig_name)
     plt.close()
     
-
-
     #Plot best val precision-recall curve
     plt.figure()
     plt.plot(best_recall, best_precision)
@@ -270,16 +189,13 @@ if __name__ == '__main__':
     plt.savefig( output_dir + '/' + pre_rec_fig_name)
     plt.close()
 
- 
     print("*****************************")
     print("Start testing")
     print("*****************************")
 
     #model inference on test loader and save the results of the test set
-    # test_loader_iter = iter(test_loader)
     auc_test, fpr, tpr, precision, recall, \
     auc_test_vid, fpr_vid, tpr_vid, precision_vid, recall_vid = test(test_loader, model, "test", args, device)
-
 
     test_info = {"epoch": [1], "test_AUC": []}
     test_info_vid = {"epoch":[1], "test_AUC": []}
@@ -289,7 +205,6 @@ if __name__ == '__main__':
 
     save_best_record(test_info, os.path.join(output_path, '{}-step-auc_test.txt'.format(step)))
     save_best_record(test_info_vid, os.path.join(output_path, '{}-step-auc_test_video.txt'.format(step)))
-    
 
     # Plot test ROC curve
     plt.figure()
@@ -309,7 +224,6 @@ if __name__ == '__main__':
     roc_fig_name = f'{args.model_name}_test_ROC_video_{now.strftime("%Y-%m-%d_%H-%M-%S")}.png' 
     plt.savefig(output_dir + '/' + roc_fig_name)
     plt.close()
-
 
     #Plot test precision-recall curve
     plt.figure()

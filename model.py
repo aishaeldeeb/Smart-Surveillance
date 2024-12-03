@@ -236,8 +236,7 @@ class Model(nn.Module):
 
         #######  process abnormal videos -> select top3 feature magnitude  #######
         afea_magnitudes_drop = afea_magnitudes * select_idx
-        # idx_abn = torch.topk(afea_magnitudes_drop, k_abn, dim=1)[1]
-        # print(afea_magnitudes.shape)
+
         idx_abn = torch.topk(afea_magnitudes_drop, k_abn, dim=1)[1]
 
         idx_abn_feat = idx_abn.unsqueeze(2).expand([-1, -1, abnormal_features.shape[2]])
