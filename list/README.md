@@ -21,7 +21,7 @@ python generate_mat_files.py --csv_file <path_to_csv> --output_dir <path_to_outp
 ## Arguments
 
 ### Generating `.mat` Files
-- `--annotation_csv`: Path to the input CSV file with annotations.
+- `--csv_file`: Path to the input CSV file with annotations.
 - `--output_dir`: Directory to save the generated `.mat` files.
 
 ---
