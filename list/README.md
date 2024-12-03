@@ -29,4 +29,3 @@ python prepare_train_val_dataset_list.py --dataset_dir /home/aishaeld/scratch/da
 # Generate gorund truths:
 1. test list: python generate_gt.py --list_file /home/aishaeld/scratch/RTFM/list/test.list
 2. val list: python generate_gt.py --list_file /home/aishaeld/scratch/RTFM/list/val.list
-
