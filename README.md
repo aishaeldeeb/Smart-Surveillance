@@ -61,12 +61,9 @@ This step involves generating a list of video paths for both the training - vali
 
 1. To generate `train.list` and `val.list`, use:
 
-
 ```bash
 python prepare_train_val_dataset_list.py --dataset_dir /path/to/train_val/dataset--include_augmented --output_dir path/to/output/directory
 ```
-
-
 
 2. To generate `test.list`, use:
 
@@ -114,6 +111,75 @@ python main.py \
 ```
 
 Note: Adjust the input paths and hyperparameters according to your dataset and desired configurations. The training script will use the feature-extracted and augmented data for anomaly detection.
+
+# Changes to Original Code
+
+This repository makes several modifications to the original [RTFM repository](https://github.com/tianyu0207/RTFM) to enhance its functionality for anomaly detection:
+
+---
+
+## Changes to `main.py`:
+
+1. **Loss Function Enhancements**:
+   - Introduced custom loss functions:
+     - **Sparsity Loss**: Encourages feature sparsity in anomaly detection.
+     - **Smoothness Loss**: Promotes temporal consistency in predictions.
+     - **RTFM Loss**: Combines classification loss and feature-based margin constraints.
+
+2. **Training Logic Simplification**:
+   - Consolidated the training loop within `main.py`, eliminating the dependency on external configuration files.
+   - Removed periodic testing and checkpointing to streamline the codebase.
+
+3. **Visualization Removal**:
+   - Commented out visualization components (`viz.plot_lines`) to focus on core training.
+
+4. **Static Dataset and Device Setup**:
+   - Replaced dynamic dataset and device configuration (`args`, `config`) with direct definitions in the code.
+
+5. **Streamlined Imports**:
+   - Reduced imports to essential modules, focusing on `torch` utilities and custom loss functions.
+
+6. **Custom Regularization Terms**:
+   - Added sparsity and smoothness regularizers to improve anomaly detection robustness.
+
+---
+
+## Changes to `dataset.py`:
+
+1. **Generalized Dataset Handling**:
+   - Replaced hardcoded dataset-specific logic with dynamic file path parsing (`train_list`, `val_list`, `test_list`) based on `args` and `mode` (train, val, test).
+
+2. **Custom Collate Function**:
+   - Introduced a `collate_fn` for DataLoader:
+     - Pads sequences to the maximum length in the batch for consistent input size.
+     - Converts padded features and labels into tensors.
+
+3. **Dynamic Label Inference**:
+   - Labels are derived directly from the file paths, identifying `"non_anomaly"` directories for normal samples.
+
+4. **Extended Modes**:
+   - Added support for validation mode (`val`) alongside training and testing.
+
+5. **Enhanced Debugging**:
+   - Commented out debugging statements for dataset parsing and file lists, making them optional for troubleshooting.
+
+6. **Flexible Preprocessing**:
+   - Retained the original feature segmentation logic (`process_feat`) but added support for additional transformations through the `transform` parameter.
+
+## Using `test.py` instead of test_10crop.py:
+1. **Video-Level Evaluation**:
+   - Added logic for video-level anomaly detection by aggregating frame-level scores.
+   - Classifies a video as anomalous if more than 10% of its frames exceed a threshold.
+
+2. **Dynamic Ground Truth Loading**:
+   - Ground truth files (`val_gt` and `test_gt`) are dynamically loaded based on the mode (`val` or `test`).
+
+3. **Expanded Metrics**:
+   - Calculated video-level AUC and precision-recall curves, in addition to frame-level metrics.
+
+4. **Improved Output Organization**:
+   - Removed visualization (`viz`) and saved results in structured directories (`./output/`), with timestamps for organization.
+
 
 ### Acknowledgments
 
