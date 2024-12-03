@@ -1,4 +1,3 @@
-New! Keyboard shortcuts … Drive keyboard shortcuts have been updated to give you first-letters navigation
 import torch.utils.data as data
 import numpy as np
 from utils import process_feat
