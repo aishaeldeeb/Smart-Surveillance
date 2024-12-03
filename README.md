@@ -74,7 +74,7 @@ python prepare_test_dataset_list.py --dataset_dir /path/to/train_val/dataset--in
 
 These lists will be used during model training and evaluation.
 
-# Training with Augmented Data
+#### Training with Augmented Data
 To streamline the process of comparing the performance between augmented and non_augmented data training, you can include the augmented data in the training - validation, and test datasets, use:
 
 ```bash
