@@ -59,20 +59,16 @@ python list/generate_mat_files.py --csv_file /path/to/annotations.csv --output_d
 
 This step involves generating a list of video paths for both the training - validation, and test datasets. 
 
-- To generate `train.list` and `val.list`, use:
+1. To generate `train.list` and `val.list`, use:
 
 
 ```bash
 python prepare_train_val_dataset_list.py --dataset_dir /path/to/train_val/dataset--include_augmented --output_dir path/to/output/directory
 ```
 
-- To streamline the process of running experiments, you can include the augmented data in the training - validation, and test datasets, use:
 
-```bash
-python prepare_train_val_dataset_list.py --dataset_dir /path/to/train_val/dataset--include_augmented --include_augmented --output_dir path/to/output/directory
-```
 
-- To generate `test.list`, use:
+2. To generate `test.list`, use:
 
 
 ```bash
@@ -81,14 +77,23 @@ python prepare_test_dataset_list.py --dataset_dir /path/to/train_val/dataset--in
 
 These lists will be used during model training and evaluation.
 
+# Training with Augmented Data
+To streamline the process of comparing the performance between augmented and non_augmented data training, you can include the augmented data in the training - validation, and test datasets, use:
+
+```bash
+python prepare_train_val_dataset_list.py --dataset_dir /path/to/train_val/dataset--include_augmented --include_augmented --output_dir path/to/output/directory
+```
+
 ### Ground Truth Mask Extraction
 
 Extract ground truth masks from the MAT files. This is necessary for model training and evaluation, as it provides the expected anomaly locations.
 
-Run the ground truth extration for the validation dataset:
+1. Run the ground truth extration for the validation dataset:
 ```bash
 python  python generate_gt.py --list_file /path/to/test.list
 ```
+
+2. Run the ground truth extration for the test dataset:
 
 ```bash
 python  python generate_gt.py --list_file /path/to/val.list
