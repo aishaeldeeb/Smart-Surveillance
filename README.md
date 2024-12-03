@@ -112,7 +112,7 @@ python main.py \
 
 Note: Adjust the input paths and hyperparameters according to your dataset and desired configurations. The training script will use the feature-extracted and augmented data for anomaly detection.
 
-# Changes to Original Code
+# Changes to Code
 
 This repository makes several modifications to the original [RTFM repository](https://github.com/tianyu0207/RTFM) to enhance its functionality for anomaly detection:
 
