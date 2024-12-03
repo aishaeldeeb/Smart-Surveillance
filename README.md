@@ -1,8 +1,8 @@
-# Smart Surveillance System
+# Smart Surveillance Training System
 
-This repository implements a smart surveillance system for anomaly detection in video data, leveraging weakly-supervised learning techniques. Building on the work from the [RTFM: Robust Temporal Feature Magnitude Learning](https://github.com/tianyu0207/RTFM), the system detects anomalous events by training a model on augmented and annotated video data.
+This repository implements a framwork to train an anomaly detection model for smart surveillance system applications, leveraging weakly-supervised learning techniques. Building on the work from the [RTFM: Robust Temporal Feature Magnitude Learning](https://github.com/tianyu0207/RTFM), the system detects anomalous events by training a the RTFM model on augmented and annotated video data.
 
-Key Features:
+Key Features in this Project:
 -**Data Augmentation**: Implements custom augmentation procedures, focusing on cropping anomaly and non-anomaly data around the subject of interest.
 -**Feature Extraction**: Uses pre-trained models to extract features from video data.
 -**Model Training**: Trains a model for anomaly detection using the augmented and feature-extracted data.
