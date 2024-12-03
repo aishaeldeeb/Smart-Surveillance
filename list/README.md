@@ -15,7 +15,7 @@ Use the `generate_mat_files.py` script to convert a `.csv` annotation file into 
 
 ### Command-line Usage:
 ```bash
-python generate_mat_files.py --annotation_csv <path_to_csv> --output_dir <path_to_output>
+python generate_mat_files.py --csv_file <path_to_csv> --output_dir <path_to_output>
 ```
 
 ## Arguments
