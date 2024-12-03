@@ -1,5 +1,3 @@
-# Enhanced `list` Directory Documentation
-
 This directory contains scripts and resources for preparing datasets and annotations. Follow the steps below to understand and utilize the tools provided.
 
 ---
