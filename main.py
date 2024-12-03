@@ -5,7 +5,6 @@ import torch
 from utils import save_best_record
 from model import Model
 from dataset import Dataset
-# from train_1 import train
 from train import train
 # from test_10crop import test
 from test import test

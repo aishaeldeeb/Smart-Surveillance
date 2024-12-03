@@ -2,6 +2,16 @@
 
 python generate_mat_files.py --csv_file /home/aishaeld/scratch/dataset/videos/annotations.csv --output_dir /home/aishaeld/scratch/RTFM/list/mat_files
 
+## Annotations Example
+This is an example of how weakly supervised labeling can be sructure for a smart home surveillance videos dataset:
+
+```bash
+video_name,start_annotation,end_annotation,event_name,second_event,frame_rate,start_time,end_time,second_start_time,seond_end_time
+armed_001.mp4,179,719,armed,0,29.97002997,6,24,0,0
+armed_002.mp4,179,839,armed,0,29.97002997,6,28,0,0
+armed_003.mp4,149,629,armed,0,29.97002997,5,21,0,0
+```
+
 prepare dataset list:
 ## Features
 - Collect `.npy` feature file paths from a dataset directory.
