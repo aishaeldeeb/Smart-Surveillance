@@ -87,13 +87,13 @@ Extract ground truth masks from the MAT files. This is necessary for model train
 
 1. Run the ground truth extration for the validation dataset:
 ```bash
-python  python generate_gt.py --list_file /path/to/test.list
+ python generate_gt.py --list_file /path/to/test.list
 ```
 
 2. Run the ground truth extration for the test dataset:
 
 ```bash
-python  python generate_gt.py --list_file /path/to/val.list
+  python generate_gt.py --list_file /path/to/val.list
 ```
 
 ### Model Training
