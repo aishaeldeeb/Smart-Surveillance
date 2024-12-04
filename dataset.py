@@ -12,8 +12,6 @@ class Dataset(data.Dataset):
         
         self.is_normal = is_normal
         self.mode = mode
-        self.n_anomaly = args.n_anomaly
-        self.n_non_anomaly = args.n_non_anomaly
 
         if (mode=="train"):
             self.list_file = args.train_list
@@ -21,11 +19,8 @@ class Dataset(data.Dataset):
         elif (mode=="val"):
             self.list_file = args.val_list
 
-
-
         elif (mode=="test"):
             self.list_file = args.test_list
-
 
         self.tranform = transform
         self._parse_list()
@@ -52,15 +47,32 @@ class Dataset(data.Dataset):
         return padded_features, labels
 
     def _parse_list(self):
-        file_paths = list(open(self.list_file))
+        file_paths = list(open(self.list_file))  # Read all file paths
+        self.list = []
+
+        # Separate anomalies and non-anomalies dynamically
+        anomalies = []
+        non_anomalies = []
+
+        for path in file_paths:
+            if "anomaly" in path and not "non_anomaly" in path:  # Check if the path indicates an anomaly
+                anomalies.append(path.strip('\n'))
+            elif "non_anomaly" in path:  # Check if the path indicates a non-anomaly
+                non_anomalies.append(path.strip('\n'))
+
         if self.mode == "train":
             if self.is_normal:
-                self.list = file_paths[self.n_non_anomaly:]
+                # Use all non-anomaly samples for training if normal data is required
+                import pdb; pdb.set_trace()
+                self.list = non_anomalies
             else:
-                self.list = file_paths[:self.n_anomaly]
+                # Use all anomaly samples for training if anomalies are required
+                import pdb; pdb.set_trace()
+                self.list = anomalies
         else:
-            self.list = file_paths
-
+            # For validation/testing, include both anomalies and non-anomalies
+            import pdb; pdb.set_trace()
+            self.list = anomalies + non_anomalies
 
     def __getitem__(self, index):
 
@@ -86,7 +98,6 @@ class Dataset(data.Dataset):
             return features, label
 
     def get_label(self, index):
-
         directory = os.path.dirname(self.list[index].strip('\n'))
 
         label = 0.0 if "non_anomaly" in directory else 1.0
