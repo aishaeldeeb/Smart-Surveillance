@@ -62,14 +62,16 @@ This step involves generating a list of video paths for both the training - vali
 1. To generate `train.list` and `val.list`, use:
 
 ```bash
-python prepare_train_val_dataset_list.py --dataset_dir /path/to/train_val/dataset--include_augmented --output_dir path/to/output/directory
+cd list
+python prepare_train_val_dataset_list.py --dataset_dir /path/to/train_val/dataset --output_dir path/to/output/directory
 ```
 
 2. To generate `test.list`, use:
 
 
 ```bash
-python prepare_test_dataset_list.py --dataset_dir /path/to/train_val/dataset--include_augmented --output_dir path/to/output/directory
+cd list
+python prepare_test_dataset_list.py --dataset_dir /path/to/train_val/dataset --output_dir path/to/output/directory
 ```
 
 These lists will be used during model training and evaluation.
@@ -78,7 +80,7 @@ These lists will be used during model training and evaluation.
 To streamline the process of comparing the performance between augmented and non_augmented data training, you can include the augmented data in the training - validation, and test datasets, use:
 
 ```bash
-python prepare_train_val_dataset_list.py --dataset_dir /path/to/train_val/dataset--include_augmented --include_augmented --output_dir path/to/output/directory
+python prepare_train_val_dataset_list.py --dataset_dir /path/to/train_val/dataset --include_augmented --include_augmented --output_dir path/to/output/directory
 ```
 
 ### Ground Truth Mask Extraction
