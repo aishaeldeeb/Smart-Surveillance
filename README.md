@@ -103,7 +103,7 @@ python generate_gt.py --list_file /path/to/val.list
 
 ### Model Training
 
-Before running training, ensure you adjust the configuration parameters in `options.py` for batch size, learning rate, data paths:
+Before running training, ensure you adjust the configuration parameters in `option.py` for batch size, learning rate, data paths:
 
 Run the training script with:
 ```bash
