@@ -63,15 +63,12 @@ class Dataset(data.Dataset):
         if self.mode == "train":
             if self.is_normal:
                 # Use all non-anomaly samples for training if normal data is required
-                import pdb; pdb.set_trace()
                 self.list = non_anomalies
             else:
                 # Use all anomaly samples for training if anomalies are required
-                import pdb; pdb.set_trace()
                 self.list = anomalies
         else:
             # For validation/testing, include both anomalies and non-anomalies
-            import pdb; pdb.set_trace()
             self.list = anomalies + non_anomalies
 
     def __getitem__(self, index):
